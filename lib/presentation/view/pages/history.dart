@@ -21,29 +21,6 @@ class HistoryScreen extends StatelessWidget {
             ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 12),
-          Expanded(
-            child: state.loading
-                ? Center(child: CircularProgressIndicator())
-                : state.recent.isEmpty
-                ? Center(child: Text('No history yet'))
-                : ListView.builder(
-                    itemCount: state.recent.length,
-                    itemBuilder: (context, i) {
-                      final d = state.recent[i];
-                      return ListTile(
-                        leading: Icon(Icons.picture_as_pdf),
-                        title: Text(d.title),
-                        subtitle: Text(
-                          '${(d.sizeBytes / 1024).toStringAsFixed(0)} KB',
-                        ),
-                        trailing: IconButton(
-                          icon: Icon(Icons.more_horiz),
-                          onPressed: () {},
-                        ),
-                      );
-                    },
-                  ),
-          ),
         ],
       ),
     );

@@ -21,14 +21,14 @@ class SettingsScreen extends StatelessWidget {
             ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 12),
-          ListTile(
-            leading: Icon(Icons.palette),
-            title: Text('Toggle Theme'),
-            trailing: Switch(
-              value: state.themeMode == ThemeMode.dark,
-              onChanged: (_) => state.toggleTheme(),
-            ),
-          ),
+          // ListTile(
+          //   leading: Icon(Icons.palette),
+          //   title: Text('Toggle Theme'),
+          //   trailing: Switch(
+          //     value: state.themeMode == ThemeMode.dark,
+          //     onChanged: (_) => state.toggleTheme(),
+          //   ),
+          // ),
           ListTile(
             leading: Icon(Icons.storage),
             title: Text('Storage Location'),

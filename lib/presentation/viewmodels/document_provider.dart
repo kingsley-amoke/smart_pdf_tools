@@ -1,60 +1,43 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:smart_pdf_tools/core/utils/image_picker.dart';
+
 import 'package:smart_pdf_tools/data/repositories/document_repo_impl.dart';
-import 'package:smart_pdf_tools/domain/models/pdf_document.dart';
 
 class DocumentProvider extends ChangeNotifier {
   final DocumentRepositoryImpl repo;
-  final ImagePickerService picker;
-  List<PdfDocument> recent = [];
   bool loading = false;
+
+  bool isConnected = false;
   ThemeMode themeMode = ThemeMode.system;
 
-  DocumentProvider({required this.repo, required this.picker});
+  DocumentProvider({required this.repo});
 
-  Future<void> loadRecent() async {
+  Future<bool> checkConnection() async {
+    final connected = await repo.testConnection();
+
+    isConnected = connected;
+    notifyListeners();
+    return connected;
+  }
+
+  Future<Map<String, dynamic>> uploadSingleFile(
+    File file, {
+    dynamic Function(double)? onProgress,
+  }) async {
     loading = true;
     notifyListeners();
-    recent = await repo.fetchRecent();
-    loading = false;
-    notifyListeners();
+
+    return await repo.uploadSingleFile(file, onProgress: onProgress);
   }
 
-  void toggleTheme() {
-    themeMode = themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
-    notifyListeners();
-  }
-
-  Future<void> scanDocument() async {
+  Future<Map<String, dynamic>> uploadMultipleFiles(
+    List<File> files, {
+    dynamic Function(double)? onProgress,
+  }) async {
     loading = true;
     notifyListeners();
-    final image = await picker.captureImage();
-    if (image != null) {
-      final pdf = await repo.createPdfFromImages([
-        image,
-      ], 'Scan_${DateTime.now().millisecondsSinceEpoch}');
-      recent.insert(0, pdf);
-    }
-    loading = false;
-    notifyListeners();
+
+    return await repo.uploadMultipleFiles(files, onProgress: onProgress);
   }
-
-  Future<void> importAndCreatePdf() async {
-    loading = true;
-    notifyListeners();
-    final images = await picker.importImages();
-    if (images.isNotEmpty) {
-      final pdf = await repo.createPdfFromImages(
-        images,
-        'Import_${DateTime.now().millisecondsSinceEpoch}',
-      );
-      recent.insert(0, pdf);
-    }
-    loading = false;
-    notifyListeners();
-  }
-
-  Future<void> mergePdfs() async {}
-
-  Future<void> compressPdf() async {}
 }

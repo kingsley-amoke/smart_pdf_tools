@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:smart_pdf_tools/presentation/view/pages/history.dart';
 import 'package:smart_pdf_tools/presentation/view/pages/home.dart';
 import 'package:smart_pdf_tools/presentation/view/pages/settings.dart';
 import 'package:smart_pdf_tools/presentation/view/pages/tools.dart';
-import 'package:smart_pdf_tools/presentation/viewmodels/document_provider.dart';
 
 class Navbar extends StatefulWidget {
   const Navbar({super.key});
@@ -21,14 +19,6 @@ class _NavbarState extends State<Navbar> {
     HistoryScreen(),
     SettingsScreen(),
   ];
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<DocumentProvider>(context, listen: false).loadRecent();
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
