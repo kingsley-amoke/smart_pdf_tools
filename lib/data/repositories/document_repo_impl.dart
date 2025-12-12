@@ -22,6 +22,14 @@ class DocumentRepositoryImpl implements DocumentRepository {
     return await apiService.uploadSingleFile(file, onProgress: onProgress);
   }
 
+  @override
+  Future<String> mergePdfs(
+    List<File> files, {
+    required Function(double) onProgress,
+  }) async {
+    return await apiService.mergePdfs(files, onProgress: onProgress);
+  }
+
   Future<bool> testConnection() async {
     final connected = await apiService.testConnection();
     return connected;

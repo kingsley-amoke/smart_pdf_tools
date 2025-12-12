@@ -9,4 +9,9 @@ abstract class DocumentRepository {
     List<File> files, {
     Function(double)? onProgress,
   });
+
+  Future<String> mergePdfs(
+    List<File> files, {
+    required Function(double) onProgress,
+  });
 }

@@ -40,4 +40,14 @@ class DocumentProvider extends ChangeNotifier {
 
     return await repo.uploadMultipleFiles(files, onProgress: onProgress);
   }
+
+  Future<String> mergePdfs(
+    List<File> files, {
+    required Function(double) onProgress,
+  }) async {
+    loading = true;
+    notifyListeners();
+
+    return await repo.mergePdfs(files, onProgress: onProgress);
+  }
 }
