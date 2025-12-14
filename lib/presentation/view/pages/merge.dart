@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_pdf_tools/core/utils/open_file.dart';
+import 'package:smart_pdf_tools/presentation/view/widgets/primary_button.dart';
+import 'package:smart_pdf_tools/presentation/view/widgets/secondary_button.dart';
 import 'dart:io';
 import 'package:smart_pdf_tools/presentation/viewmodels/document_provider.dart';
 
@@ -13,7 +15,7 @@ class MergeScreen extends StatefulWidget {
 }
 
 class _MergeScreenState extends State<MergeScreen> {
-  List<File> _selectedFiles = [];
+  final List<File> _selectedFiles = [];
   bool _isProcessing = false;
   double _progress = 0.0;
   String _statusMessage = '';
@@ -253,11 +255,7 @@ class _MergeScreenState extends State<MergeScreen> {
                             foregroundColor: Colors.white,
                             child: Text('${index + 1}'),
                           ),
-                          // leading: CircleAvatar(
-                          //   backgroundColor: Colors.deepPurple,
-                          //   foregroundColor: Colors.white,
-                          //   child: Text('${index + 1}'),
-                          // ),
+
                           title: Text(
                             fileName,
                             maxLines: 1,
@@ -343,28 +341,20 @@ class _MergeScreenState extends State<MergeScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: OutlinedButton.icon(
+                      child: SecondaryButton(
+                        icon: Icons.add,
+                        text: 'Add Files',
                         onPressed: _isProcessing ? null : _pickFiles,
-                        icon: const Icon(Icons.add),
-                        label: const Text('Add Files'),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: ElevatedButton.icon(
+                      child: PrimaryButton(
+                        icon: Icons.merge_type,
+                        text: 'Merge PDFs',
                         onPressed: (_isProcessing || _selectedFiles.length < 2)
                             ? null
                             : _mergePdfs,
-                        icon: const Icon(Icons.merge_type),
-                        label: const Text('Merge PDFs'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepPurple,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                        ),
                       ),
                     ),
                   ],
