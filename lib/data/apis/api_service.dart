@@ -3,6 +3,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:smart_pdf_tools/core/adapters/split_method_adapter.dart';
 import 'package:smart_pdf_tools/core/constants/external_links.dart';
 import 'package:smart_pdf_tools/domain/models/compression_quality.dart';
+import 'package:smart_pdf_tools/domain/models/image_format.dart';
 import 'package:smart_pdf_tools/domain/models/split_method.dart';
 import 'dart:io';
 
@@ -341,6 +342,134 @@ class ApiService {
     } catch (e) {
       print('❌ Unexpected error: $e');
       throw Exception('Failed to compress PDF: $e');
+    }
+  }
+
+  Future<String> convertPdfToImages(
+    File file, {
+    required ImageFormat format,
+    int quality = 90,
+    required Function(double) onProgress,
+  }) async {
+    try {
+      print('📤 Starting PDF to images conversion...');
+
+      FormData formData = FormData.fromMap({
+        'file': await MultipartFile.fromFile(
+          file.path,
+          filename: file.path.split('/').last,
+        ),
+        'format': format.name,
+        'quality': quality,
+      });
+
+      final directory = await getApplicationDocumentsDirectory();
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final savePath = '${directory.path}/pdf_images_$timestamp.zip';
+
+      print('💾 Will save to: $savePath');
+
+      await _dio
+          .post(
+            '/pdf/convert/to-images',
+            data: formData,
+            options: Options(
+              responseType: ResponseType.bytes,
+              followRedirects: false,
+              validateStatus: (status) => status! < 500,
+            ),
+            onSendProgress: (sent, total) {
+              final progress = sent / total * 0.5;
+              onProgress(progress);
+              print('⬆️  Upload: ${(progress * 100).toInt()}%');
+            },
+            onReceiveProgress: (received, total) {
+              if (total != -1) {
+                final progress = 0.5 + (received / total * 0.5);
+                onProgress(progress);
+                print('⬇️  Download: ${(progress * 100).toInt()}%');
+              }
+            },
+          )
+          .then((response) async {
+            if (response.statusCode == 200 || response.statusCode == 201) {
+              final file = File(savePath);
+              await file.writeAsBytes(response.data);
+              print('✅ ZIP saved successfully');
+            } else {
+              throw Exception('Server returned status: ${response.statusCode}');
+            }
+          });
+
+      return savePath;
+    } catch (e) {
+      print('❌ Conversion error: $e');
+      throw Exception('Failed to convert PDF to images: $e');
+    }
+  }
+
+  /// Convert images to PDF
+  Future<String> convertImagesToPdf(
+    List<File> files, {
+    required Function(double) onProgress,
+  }) async {
+    try {
+      print('📤 Starting images to PDF conversion...');
+
+      List<MultipartFile> filesList = [];
+      for (var file in files) {
+        filesList.add(
+          await MultipartFile.fromFile(
+            file.path,
+            filename: file.path.split('/').last,
+          ),
+        );
+      }
+
+      FormData formData = FormData.fromMap({'files': filesList});
+
+      final directory = await getApplicationDocumentsDirectory();
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final savePath = '${directory.path}/from_images_$timestamp.pdf';
+
+      print('💾 Will save to: $savePath');
+
+      await _dio
+          .post(
+            '/pdf/convert/images-to-pdf',
+            data: formData,
+            options: Options(
+              responseType: ResponseType.bytes,
+              followRedirects: false,
+              validateStatus: (status) => status! < 500,
+            ),
+            onSendProgress: (sent, total) {
+              final progress = sent / total * 0.5;
+              onProgress(progress);
+              print('⬆️  Upload: ${(progress * 100).toInt()}%');
+            },
+            onReceiveProgress: (received, total) {
+              if (total != -1) {
+                final progress = 0.5 + (received / total * 0.5);
+                onProgress(progress);
+                print('⬇️  Download: ${(progress * 100).toInt()}%');
+              }
+            },
+          )
+          .then((response) async {
+            if (response.statusCode == 200 || response.statusCode == 201) {
+              final file = File(savePath);
+              await file.writeAsBytes(response.data);
+              print('✅ PDF saved successfully');
+            } else {
+              throw Exception('Server returned status: ${response.statusCode}');
+            }
+          });
+
+      return savePath;
+    } catch (e) {
+      print('❌ Conversion error: $e');
+      throw Exception('Failed to convert images to PDF: $e');
     }
   }
 }

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_pdf_tools/presentation/view/pages/compress.dart';
+import 'package:smart_pdf_tools/presentation/view/pages/convert_to_images.dart';
+import 'package:smart_pdf_tools/presentation/view/pages/image_to_pdf.dart';
 import 'package:smart_pdf_tools/presentation/view/pages/merge.dart';
 import 'package:smart_pdf_tools/presentation/view/pages/split.dart';
 
@@ -199,16 +201,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 _buildFeatureCard(
                       context: context,
                       title: 'Convert',
-                      subtitle: 'PDF to images',
+                      subtitle: 'PDF to images & more',
                       icon: Icons.transform,
                       color: Colors.blue,
                       gradient: LinearGradient(
                         colors: [Colors.blue.shade400, Colors.blue.shade600],
                       ),
                       onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Coming soon!')),
-                        );
+                        _showConvertOptions(context);
                       },
                     )
                     .animate()
@@ -272,6 +272,86 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  void _showConvertOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Choose Conversion',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade100,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(Icons.image, color: Colors.blue.shade700),
+              ),
+              title: const Text('PDF to Images'),
+              subtitle: const Text('Convert PDF pages to PNG/JPG'),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ConvertToImagesScreen(),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 12),
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.purple.shade100,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.picture_as_pdf,
+                  color: Colors.purple.shade700,
+                ),
+              ),
+              title: const Text('Images to PDF'),
+              subtitle: const Text('Create PDF from multiple images'),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ImagesToPdfScreen(),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 20),
+          ],
         ),
       ),
     );

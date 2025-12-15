@@ -1,0 +1,1 @@
+enum ImageFormat { png, jpg }

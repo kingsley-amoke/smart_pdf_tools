@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:smart_pdf_tools/data/repositories/document_repo_impl.dart';
 import 'package:smart_pdf_tools/domain/models/compression_quality.dart';
+import 'package:smart_pdf_tools/domain/models/image_format.dart';
 import 'package:smart_pdf_tools/domain/models/split_method.dart';
 
 class DocumentProvider extends ChangeNotifier {
@@ -81,6 +82,27 @@ class DocumentProvider extends ChangeNotifier {
       quality: quality,
       compressImages: compressImages,
       removeMetadata: removeMetadata,
+      onProgress: onProgress,
+    );
+  }
+
+  Future<String> convertImagesToPdf(
+    List<File> files, {
+    required Function(double) onProgress,
+  }) async {
+    return await repo.convertImagesToPdf(files, onProgress: onProgress);
+  }
+
+  Future<String> convertPdfToImages(
+    File file, {
+    required ImageFormat format,
+    int quality = 90,
+    required Function(double) onProgress,
+  }) async {
+    return await repo.convertPdfToImages(
+      file,
+      format: format,
+      quality: quality,
       onProgress: onProgress,
     );
   }

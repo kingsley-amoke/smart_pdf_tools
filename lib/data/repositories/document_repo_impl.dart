@@ -1,5 +1,6 @@
 import 'package:smart_pdf_tools/data/apis/api_service.dart';
 import 'package:smart_pdf_tools/domain/models/compression_quality.dart';
+import 'package:smart_pdf_tools/domain/models/image_format.dart';
 import 'package:smart_pdf_tools/domain/models/split_method.dart';
 import 'package:smart_pdf_tools/domain/repositories/document_repo.dart';
 import 'dart:io';
@@ -62,6 +63,29 @@ class DocumentRepositoryImpl implements DocumentRepository {
       quality: quality,
       compressImages: compressImages,
       removeMetadata: removeMetadata,
+      onProgress: onProgress,
+    );
+  }
+
+  @override
+  Future<String> convertImagesToPdf(
+    List<File> files, {
+    required Function(double) onProgress,
+  }) async {
+    return apiService.convertImagesToPdf(files, onProgress: onProgress);
+  }
+
+  @override
+  Future<String> convertPdfToImages(
+    File file, {
+    required ImageFormat format,
+    int quality = 90,
+    required Function(double) onProgress,
+  }) async {
+    return apiService.convertPdfToImages(
+      file,
+      format: format,
+      quality: quality,
       onProgress: onProgress,
     );
   }

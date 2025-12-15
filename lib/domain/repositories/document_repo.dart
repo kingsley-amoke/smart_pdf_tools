@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:smart_pdf_tools/domain/models/compression_quality.dart';
+import 'package:smart_pdf_tools/domain/models/image_format.dart';
 import 'package:smart_pdf_tools/domain/models/split_method.dart';
 
 abstract class DocumentRepository {
@@ -30,6 +31,18 @@ abstract class DocumentRepository {
     required CompressionQuality quality,
     bool compressImages = true,
     bool removeMetadata = true,
+    required Function(double) onProgress,
+  });
+
+  Future<String> convertImagesToPdf(
+    List<File> files, {
+    required Function(double) onProgress,
+  });
+
+  Future<String> convertPdfToImages(
+    File file, {
+    required ImageFormat format,
+    int quality = 90,
     required Function(double) onProgress,
   });
 
