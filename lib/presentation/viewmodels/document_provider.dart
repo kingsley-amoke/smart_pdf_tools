@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import 'package:smart_pdf_tools/data/repositories/document_repo_impl.dart';
+import 'package:smart_pdf_tools/domain/models/compression_quality.dart';
+import 'package:smart_pdf_tools/domain/models/split_method.dart';
 
 class DocumentProvider extends ChangeNotifier {
   final DocumentRepositoryImpl repo;
@@ -49,5 +51,41 @@ class DocumentProvider extends ChangeNotifier {
     notifyListeners();
 
     return await repo.mergePdfs(files, onProgress: onProgress);
+  }
+
+  Future<String> splitPdf(
+    File file, {
+    required SplitMethod method,
+    String? ranges,
+    int? pagesPerSplit,
+    required Function(double) onProgress,
+  }) async {
+    return await repo.splitPdf(
+      file,
+      ranges: ranges,
+      pagesPerSplit: pagesPerSplit,
+      method: method,
+      onProgress: onProgress,
+    );
+  }
+
+  Future<Map<String, dynamic>> compressPdf(
+    File file, {
+    required CompressionQuality quality,
+    bool compressImages = true,
+    bool removeMetadata = true,
+    required Function(double) onProgress,
+  }) async {
+    return await repo.compressPdf(
+      file,
+      quality: quality,
+      compressImages: compressImages,
+      removeMetadata: removeMetadata,
+      onProgress: onProgress,
+    );
+  }
+
+  Future<int> getPageCount(File file) async {
+    return await repo.getPageCount(file);
   }
 }

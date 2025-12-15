@@ -2,9 +2,9 @@ import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:smart_pdf_tools/core/adapters/split_method_adapter.dart';
 import 'package:smart_pdf_tools/core/constants/external_links.dart';
+import 'package:smart_pdf_tools/domain/models/compression_quality.dart';
+import 'package:smart_pdf_tools/domain/models/split_method.dart';
 import 'dart:io';
-
-import 'package:smart_pdf_tools/presentation/view/pages/split.dart';
 
 class ApiService {
   final Dio _dio = Dio(
@@ -254,6 +254,93 @@ class ApiService {
       print('Failed to get page count: $e');
       // Return null or estimate
       return 0;
+    }
+  }
+
+  Future<Map<String, dynamic>> compressPdf(
+    File file, {
+    required CompressionQuality quality,
+    bool compressImages = true,
+    bool removeMetadata = true,
+    required Function(double) onProgress,
+  }) async {
+    try {
+      print('📤 Starting compress upload...');
+
+      // Prepare form data
+      FormData formData = FormData.fromMap({
+        'file': await MultipartFile.fromFile(
+          file.path,
+          filename: file.path.split('/').last,
+        ),
+        'quality': quality.name,
+        'compressImages': compressImages,
+        'removeMetadata': removeMetadata,
+      });
+
+      // Get save directory
+      final directory = await getApplicationDocumentsDirectory();
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final savePath = '${directory.path}/compressed_$timestamp.pdf';
+
+      print('💾 Will save to: $savePath');
+
+      int? compressedSize;
+      String? reductionPercentage;
+
+      // Upload and download
+      await _dio
+          .post(
+            '/pdf/compress',
+            data: formData,
+            options: Options(
+              responseType: ResponseType.bytes,
+              followRedirects: false,
+              validateStatus: (status) => status! < 500,
+            ),
+            onSendProgress: (sent, total) {
+              final progress = sent / total * 0.5;
+              onProgress(progress);
+              print('⬆️  Upload: ${(progress * 100).toInt()}%');
+            },
+            onReceiveProgress: (received, total) {
+              if (total != -1) {
+                final progress = 0.5 + (received / total * 0.5);
+                onProgress(progress);
+                print('⬇️  Download: ${(progress * 100).toInt()}%');
+              }
+            },
+          )
+          .then((response) async {
+            if (response.statusCode == 200 || response.statusCode == 201) {
+              // Get compression stats from headers
+              compressedSize = int.tryParse(
+                response.headers.value('x-compressed-size') ?? '0',
+              );
+              reductionPercentage = response.headers.value(
+                'x-reduction-percentage',
+              );
+
+              // Save file
+              final resultFile = File(savePath);
+              await resultFile.writeAsBytes(response.data);
+              print('✅ File saved successfully');
+            } else {
+              throw Exception('Server returned status: ${response.statusCode}');
+            }
+          });
+
+      return {
+        'filePath': savePath,
+        'compressedSize': compressedSize,
+        'reductionPercentage': reductionPercentage,
+      };
+    } on DioException catch (e) {
+      print('❌ Dio error: ${e.message}');
+      throw Exception('Failed to compress PDF: ${e.message}');
+    } catch (e) {
+      print('❌ Unexpected error: $e');
+      throw Exception('Failed to compress PDF: $e');
     }
   }
 }

@@ -1,4 +1,4 @@
-import 'package:smart_pdf_tools/presentation/view/pages/split.dart';
+import 'package:smart_pdf_tools/domain/models/split_method.dart';
 
 class SplitMethodAdapter {
   final SplitMethod method;
