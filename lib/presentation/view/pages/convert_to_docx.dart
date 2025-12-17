@@ -1,31 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:smart_pdf_tools/core/utils/extract_zip.dart';
+import 'package:smart_pdf_tools/core/utils/open_file.dart';
+import 'package:smart_pdf_tools/presentation/view/widgets/error_message.dart';
 import 'dart:io';
 
-import 'package:smart_pdf_tools/domain/models/image_format.dart';
-import 'package:smart_pdf_tools/presentation/view/widgets/custom_slider.dart';
-import 'package:smart_pdf_tools/presentation/view/widgets/error_message.dart';
 import 'package:smart_pdf_tools/presentation/view/widgets/file_card.dart';
-import 'package:smart_pdf_tools/presentation/view/widgets/image_format_card.dart';
 import 'package:smart_pdf_tools/presentation/view/widgets/my_appbar.dart';
 import 'package:smart_pdf_tools/presentation/view/widgets/primary_button.dart';
 import 'package:smart_pdf_tools/presentation/view/widgets/success_dialog.dart';
 import 'package:smart_pdf_tools/presentation/viewmodels/document_provider.dart';
 
-class ConvertToImagesScreen extends StatefulWidget {
-  const ConvertToImagesScreen({super.key});
+class PdfToDocxScreen extends StatefulWidget {
+  const PdfToDocxScreen({super.key});
 
   @override
-  State<ConvertToImagesScreen> createState() => _ConvertToImagesScreenState();
+  State<PdfToDocxScreen> createState() => _PdfToDocxScreenState();
 }
 
-class _ConvertToImagesScreenState extends State<ConvertToImagesScreen>
+class _PdfToDocxScreenState extends State<PdfToDocxScreen>
     with TickerProviderStateMixin {
   File? _selectedFile;
-  ImageFormat _selectedFormat = ImageFormat.png;
-  double _quality = 90;
   bool _isProcessing = false;
   double _progress = 0.0;
   String _statusMessage = '';
@@ -67,7 +62,7 @@ class _ConvertToImagesScreenState extends State<ConvertToImagesScreen>
     });
   }
 
-  Future<void> _convertToImages() async {
+  Future<void> _convertToDocx() async {
     if (_selectedFile == null) {
       _showError('Please select a PDF file');
       return;
@@ -82,19 +77,17 @@ class _ConvertToImagesScreenState extends State<ConvertToImagesScreen>
     try {
       final resultPath = await context
           .read<DocumentProvider>()
-          .convertPdfToImages(
+          .convertPdfToDocx(
             _selectedFile!,
-            format: _selectedFormat,
-            quality: _quality.toInt(),
             onProgress: (progress) {
               setState(() {
                 _progress = progress;
                 if (progress < 0.5) {
                   _statusMessage = 'Uploading PDF...';
                 } else if (progress < 0.9) {
-                  _statusMessage = 'Converting pages...';
+                  _statusMessage = 'Converting to DOCX...';
                 } else {
-                  _statusMessage = 'Creating ZIP...';
+                  _statusMessage = 'Downloading...';
                 }
               });
             },
@@ -111,13 +104,13 @@ class _ConvertToImagesScreenState extends State<ConvertToImagesScreen>
           context: context,
           barrierDismissible: false,
           builder: (context) => SuccessDialog(
-            title: 'Conversion Complete!',
-            description: 'Your PDF has been converted to images',
-            removeText: 'Done',
-            openFileText: 'Open ZIP',
             filePath: resultPath,
             removeFile: _removeFile,
-            onPressed: () => extractZip(filePath: resultPath),
+            title: 'Conversion Complete!',
+            description: 'Your PDF has been converted to DOCX',
+            removeText: 'Done',
+            openFileText: 'Open DOCX',
+            onPressed: () => openFile(resultPath),
           ),
         );
       }
@@ -140,7 +133,7 @@ class _ConvertToImagesScreenState extends State<ConvertToImagesScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: myAppbar(context, title: 'PDF to Image Converter'),
+      appBar: myAppbar(context, title: 'PDF to DOCX Converter'),
       body: Column(
         children: [
           Expanded(
@@ -158,99 +151,46 @@ class _ConvertToImagesScreenState extends State<ConvertToImagesScreen>
                     pulseController: _pulseController,
                   ),
                   const SizedBox(height: 16),
+
+                  // Info card
                   Card(
-                    elevation: 2,
+                    elevation: 1,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(20.0),
+                      padding: const EdgeInsets.all(16.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             children: [
-                              Icon(Icons.settings, color: Colors.blue.shade700),
+                              Icon(
+                                Icons.info_outline,
+                                color: Colors.indigo.shade700,
+                                size: 20,
+                              ),
                               const SizedBox(width: 8),
                               const Text(
-                                'Conversion Options',
+                                'About This Conversion',
                                 style: TextStyle(
-                                  fontSize: 18,
                                   fontWeight: FontWeight.bold,
+                                  fontSize: 14,
                                 ),
                               ),
                             ],
-                          ),
-                          const SizedBox(height: 16),
-                          // Format selector
-                          const Text(
-                            'Image Format',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
                           ),
                           const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: ImageFormatCard(
-                                  selectedFormat: _selectedFormat,
-
-                                  format: ImageFormat.png,
-                                  title: 'PNG',
-                                  subtitle: 'Lossless quality',
-                                  icon: Icons.image,
-                                  onTap: _isProcessing
-                                      ? null
-                                      : (ImageFormat format) {
-                                          setState(() {
-                                            _selectedFormat = format;
-                                          });
-                                        },
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: ImageFormatCard(
-                                  selectedFormat: _selectedFormat,
-
-                                  format: ImageFormat.jpg,
-                                  title: 'JPG',
-                                  subtitle: 'Smaller size',
-                                  icon: Icons.photo,
-                                  onTap: _isProcessing
-                                      ? null
-                                      : (ImageFormat format) {
-                                          setState(() {
-                                            _selectedFormat = format;
-                                          });
-                                        },
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 20),
-
-                          // Quality slider
-                          const Text(
-                            'Image Quality',
+                          Text(
+                            '• Converts PDF to editable DOCX format\n'
+                            '• Preserves text and basic formatting\n'
+                            '• Best for text-based PDFs\n'
+                            '• Complex layouts may need manual adjustment',
                             style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                              color: Colors.grey.shade700,
+                              height: 1.5,
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          CustomSlider(
-                            value: _quality,
-                            onChanged: _isProcessing
-                                ? null
-                                : (value) {
-                                    setState(() {
-                                      _quality = value;
-                                    });
-                                  },
                           ),
                         ],
                       ),
@@ -260,15 +200,14 @@ class _ConvertToImagesScreenState extends State<ConvertToImagesScreen>
               ),
             ),
           ),
-
           Padding(
             padding: const EdgeInsets.all(18.0),
             child: SizedBox(
               width: double.infinity,
               child: PrimaryButton(
-                icon: Icons.image,
-                text: _isProcessing ? _statusMessage : 'Convert to Images',
-                onPressed: _isProcessing ? null : _convertToImages,
+                icon: Icons.description,
+                text: _isProcessing ? _statusMessage : 'Convert to DOCX',
+                onPressed: _isProcessing ? null : _convertToDocx,
                 isProcessing: _isProcessing,
                 progress: _progress,
                 statusMessage: _statusMessage,

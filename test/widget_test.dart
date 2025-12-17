@@ -8,12 +8,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:smart_pdf_tools/smartpdftoolkit.dart';
+import 'package:smart_pdf_tools/pdf_smart_tools.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const SmartPdfToolkit());
+    await tester.pumpWidget(const PdfSmartTools());
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);

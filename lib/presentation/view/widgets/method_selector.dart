@@ -1,104 +1,95 @@
 import 'package:flutter/material.dart';
 import 'package:smart_pdf_tools/domain/models/split_method.dart';
 
-class MethodSelector extends StatefulWidget {
-  MethodSelector({
+class MethodSelector extends StatelessWidget {
+  const MethodSelector({
     super.key,
+    required this.example,
+    required this.icon,
+    required this.method,
+    required this.onTap,
+    required this.subtitle,
+    required this.title,
+    required this.onChanged,
+    required this.isSelected,
     required this.selectedMethod,
-    required this.pagesPerSplitController,
-    required this.rangesController,
-    required this.pageCount,
   });
 
-  SplitMethod selectedMethod;
-  TextEditingController rangesController;
-  TextEditingController pagesPerSplitController;
-  int? pageCount;
+  final SplitMethod method;
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final String example;
+  final void Function() onTap;
+  final void Function(SplitMethod?) onChanged;
+  final bool isSelected;
+  final SplitMethod selectedMethod;
 
-  @override
-  State<MethodSelector> createState() => _MethodSelectorState();
-}
-
-class _MethodSelectorState extends State<MethodSelector> {
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.teal.shade50 : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? Colors.teal.shade300 : Colors.grey.shade300,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
           children: [
-            const Text(
-              'Split Method',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            Radio<SplitMethod>(
+              value: method,
+              groupValue: selectedMethod,
+              onChanged: (value) => onChanged(value),
+              activeColor: Colors.teal.shade700,
             ),
-            const SizedBox(height: 12),
-
-            if (widget.selectedMethod == SplitMethod.ranges) ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: TextField(
-                  controller: widget.rangesController,
-                  decoration: InputDecoration(
-                    hintText: '1-3, 5, 7-10',
-                    border: const OutlineInputBorder(),
-                    suffixIcon: widget.pageCount != null
-                        ? Tooltip(
-                            message: 'Total pages: $widget.pageCount',
-                            child: Icon(
-                              Icons.info_outline,
-                              color: Colors.blue.shade700,
-                            ),
-                          )
-                        : null,
-                  ),
-                ),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: isSelected ? Colors.teal.shade100 : Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(10),
               ),
-              const SizedBox(height: 8),
-            ],
-            RadioGroup(
-              groupValue: widget.selectedMethod,
-              onChanged: (value) {
-                setState(() {
-                  widget.selectedMethod = value!;
-                });
-              },
+              child: Icon(
+                icon,
+                color: isSelected ? Colors.teal.shade700 : Colors.grey.shade600,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  RadioListTile<SplitMethod>(
-                    title: const Text('By Page Ranges'),
-                    subtitle: const Text('e.g., 1-3, 5, 7-10'),
-                    value: SplitMethod.ranges,
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: isSelected ? Colors.teal.shade900 : Colors.black87,
+                    ),
                   ),
-                  RadioListTile<SplitMethod>(
-                    title: const Text('Individual Pages'),
-                    subtitle: const Text('One page per file'),
-                    value: SplitMethod.individual,
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
                   ),
-                  RadioListTile<SplitMethod>(
-                    title: const Text('Every N Pages'),
-                    subtitle: const Text('Split into equal chunks'),
-                    value: SplitMethod.everyN,
+                  const SizedBox(height: 2),
+                  Text(
+                    example,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey.shade500,
+                      fontStyle: FontStyle.italic,
+                    ),
                   ),
                 ],
               ),
             ),
-
-            if (widget.selectedMethod == SplitMethod.everyN) ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: TextField(
-                  controller: widget.pagesPerSplitController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Pages per split',
-                    hintText: '3',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-            ],
           ],
         ),
       ),

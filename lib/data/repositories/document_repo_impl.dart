@@ -91,12 +91,28 @@ class DocumentRepositoryImpl implements DocumentRepository {
   }
 
   @override
+  Future<String> convertPdfToDocx(
+    File file, {
+    required Function(double) onProgress,
+  }) async {
+    return apiService.convertPdfToDocx(file, onProgress: onProgress);
+  }
+
+  @override
+  Future<String> convertDocxToPdf(
+    File file, {
+    required Function(double) onProgress,
+  }) async {
+    return apiService.convertDocxToPdf(file, onProgress: onProgress);
+  }
+
+  @override
   Future<int> getPageCount(File file) async {
     return apiService.getPageCount(file);
   }
 
-  Future<bool> testConnection() async {
-    final connected = await apiService.testConnection();
+  Future<bool> testConnection(Function(String)? onStatusUpdate) async {
+    final connected = await apiService.testConnection(onStatusUpdate);
     return connected;
   }
 }

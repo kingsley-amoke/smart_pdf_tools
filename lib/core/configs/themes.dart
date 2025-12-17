@@ -5,8 +5,9 @@ import 'package:google_fonts/google_fonts.dart';
 final ThemeData lightTheme = ThemeData(
   useMaterial3: true,
   brightness: Brightness.light,
+  primaryColor: Colors.teal,
   colorScheme: ColorScheme.fromSeed(
-    seedColor: const Color(0xFF4F46E5),
+    seedColor: Colors.teal,
     brightness: Brightness.light,
     surface: const Color(0xFFF8FAFF),
   ),
@@ -51,6 +52,9 @@ final ThemeData lightTheme = ThemeData(
   iconTheme: const IconThemeData(color: Color(0xFF4F46E5)),
   dividerColor: Colors.grey.shade300,
   splashFactory: InkSparkle.splashFactory,
+  bottomNavigationBarTheme: BottomNavigationBarThemeData(
+    backgroundColor: Colors.white,
+  ),
 );
 
 //DARK THEME

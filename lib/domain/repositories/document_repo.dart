@@ -46,5 +46,15 @@ abstract class DocumentRepository {
     required Function(double) onProgress,
   });
 
+  Future<String> convertDocxToPdf(
+    File file, {
+    required Function(double) onProgress,
+  });
+
+  Future<String> convertPdfToDocx(
+    File file, {
+    required Function(double) onProgress,
+  });
+
   Future<int> getPageCount(File file);
 }
