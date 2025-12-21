@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:smart_pdf_tools/core/utils/open_file.dart';
+import 'package:smart_pdf_tools/core/utils/save_file.dart';
+import 'package:smart_pdf_tools/domain/models/pdf_document.dart';
 import 'package:smart_pdf_tools/presentation/view/widgets/error_message.dart';
 import 'dart:io';
 
@@ -75,7 +76,7 @@ class _PdfToDocxScreenState extends State<PdfToDocxScreen>
     });
 
     try {
-      final resultPath = await context
+      final PdfDocument doc = await context
           .read<DocumentProvider>()
           .convertPdfToDocx(
             _selectedFile!,
@@ -104,13 +105,13 @@ class _PdfToDocxScreenState extends State<PdfToDocxScreen>
           context: context,
           barrierDismissible: false,
           builder: (context) => SuccessDialog(
-            filePath: resultPath,
+            filePath: doc.path,
             removeFile: _removeFile,
             title: 'Conversion Complete!',
             description: 'Your PDF has been converted to DOCX',
             removeText: 'Done',
-            openFileText: 'Open DOCX',
-            onPressed: () => openFile(resultPath),
+            openFileText: 'Download',
+            onPressed: () => saveLocalFileToDownloads(context, doc),
           ),
         );
       }

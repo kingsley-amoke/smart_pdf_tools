@@ -55,13 +55,11 @@ class SplitPdfApi extends SplitPdf {
             onSendProgress: (sent, total) {
               final progress = sent / total * 0.5;
               onProgress(progress);
-              print('⬆️  Upload: ${(progress * 100).toInt()}%');
             },
             onReceiveProgress: (received, total) {
               if (total != -1) {
                 final progress = 0.5 + (received / total * 0.5);
                 onProgress(progress);
-                print('⬇️  Download: ${(progress * 100).toInt()}%');
               }
             },
           )

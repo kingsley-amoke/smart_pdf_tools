@@ -43,7 +43,7 @@ class FeatureCard extends StatelessWidget {
                 gradient: gradient,
                 borderRadius: BorderRadius.circular(18),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -58,7 +58,7 @@ class FeatureCard extends StatelessWidget {
                     child: Icon(icon, size: 34, color: Colors.white),
                   ),
 
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 8),
 
                   // Title
                   Text(
@@ -68,9 +68,10 @@ class FeatureCard extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
                     ),
+                    overflow: TextOverflow.ellipsis,
                   ),
 
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 4),
 
                   // Subtitle
                   Text(
@@ -78,7 +79,9 @@ class FeatureCard extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: textTheme.bodySmall?.copyWith(
                       color: Colors.white.withValues(alpha: 0.85),
+                      fontSize: 12,
                     ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),

@@ -6,6 +6,7 @@ import 'package:smart_pdf_tools/core/utils/get_files_from_path.dart';
 
 import 'package:smart_pdf_tools/data/repositories/document_repo_impl.dart';
 import 'package:smart_pdf_tools/domain/models/compression_quality.dart';
+import 'package:smart_pdf_tools/domain/models/connection_state.dart';
 import 'package:smart_pdf_tools/domain/models/document_type.dart';
 import 'package:smart_pdf_tools/domain/models/image_format.dart';
 import 'package:smart_pdf_tools/domain/models/pdf_document.dart';
@@ -15,15 +16,29 @@ class DocumentProvider extends ChangeNotifier {
   final DocumentRepositoryImpl repo;
   bool loading = false;
   bool isConnected = false;
-  String? connectionMessage;
-  ThemeMode themeMode = ThemeMode.system;
+  ApiConnectionState connectionState = ApiConnectionState.info;
+  String connectionMessage = 'Connecting to server...';
+  ThemeMode themeMode = ThemeMode.light;
 
   List<PdfDocument> documents = [];
 
   DocumentProvider({required this.repo});
 
+  void toggleTheme(bool isDark) {
+    themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
+    notifyListeners();
+  }
+
   void onStatusUpdate(String message) {
     connectionMessage = message;
+    switch (message) {
+      case 'Connecting to server...':
+        connectionState = ApiConnectionState.info;
+      case 'Connected successfully!':
+        connectionState = ApiConnectionState.success;
+      case 'Connection failed':
+        connectionState = ApiConnectionState.error;
+    }
     notifyListeners();
   }
 
@@ -37,7 +52,7 @@ class DocumentProvider extends ChangeNotifier {
 
   Future<void> loadDocuments() async {
     final directory = await createAppFolder();
-    print(directory);
+
     final List<PdfDocument> files = await getFilesFromPath(directory);
     documents.addAll(files);
     notifyListeners();
@@ -63,7 +78,7 @@ class DocumentProvider extends ChangeNotifier {
     return await repo.uploadMultipleFiles(files, onProgress: onProgress);
   }
 
-  Future<String> mergePdfs(
+  Future<PdfDocument> mergePdfs(
     List<File> files, {
     required Function(double) onProgress,
   }) async {
@@ -72,19 +87,18 @@ class DocumentProvider extends ChangeNotifier {
 
     final file = File(res);
 
-    documents.add(
-      PdfDocument.fromFile(
-        file: file,
-        fileId: file.path,
-        type: DocumentType.pdf,
-      ),
+    final doc = PdfDocument.fromFile(
+      file: file,
+      fileId: file.path,
+      type: DocumentType.pdf,
     );
-    notifyListeners();
 
-    return res;
+    addDocumentToList(doc);
+
+    return doc;
   }
 
-  Future<String> splitPdf(
+  Future<PdfDocument> splitPdf(
     File file, {
     required SplitMethod method,
     String? ranges,
@@ -105,9 +119,8 @@ class DocumentProvider extends ChangeNotifier {
       type: DocumentType.zip,
     );
 
-    documents.add(doc);
-    notifyListeners();
-    return res;
+    addDocumentToList(doc);
+    return doc;
   }
 
   Future<Map<String, dynamic>> compressPdf(
@@ -131,13 +144,13 @@ class DocumentProvider extends ChangeNotifier {
       type: DocumentType.pdf,
     );
 
-    documents.add(doc);
-    notifyListeners();
+    addDocumentToList(doc);
+    res['doc'] = doc;
 
     return res;
   }
 
-  Future<String> convertImagesToPdf(
+  Future<PdfDocument> convertImagesToPdf(
     List<File> files, {
     required Function(double) onProgress,
   }) async {
@@ -148,12 +161,11 @@ class DocumentProvider extends ChangeNotifier {
       fileId: res,
       type: DocumentType.pdf,
     );
-    documents.add(doc);
-    notifyListeners();
-    return res;
+    addDocumentToList(doc);
+    return doc;
   }
 
-  Future<String> convertPdfToImages(
+  Future<PdfDocument> convertPdfToImages(
     File file, {
     required ImageFormat format,
     int quality = 90,
@@ -172,13 +184,12 @@ class DocumentProvider extends ChangeNotifier {
       type: DocumentType.zip,
     );
 
-    documents.add(doc);
-    notifyListeners();
+    addDocumentToList(doc);
 
-    return res;
+    return doc;
   }
 
-  Future<String> convertDocxToPdf(
+  Future<PdfDocument> convertDocxToPdf(
     File file, {
     required Function(double) onProgress,
   }) async {
@@ -188,12 +199,11 @@ class DocumentProvider extends ChangeNotifier {
       fileId: res,
       type: DocumentType.pdf,
     );
-    documents.add(doc);
-    notifyListeners();
-    return res;
+    addDocumentToList(doc);
+    return doc;
   }
 
-  Future<String> convertPdfToDocx(
+  Future<PdfDocument> convertPdfToDocx(
     File file, {
     required Function(double) onProgress,
   }) async {
@@ -205,12 +215,21 @@ class DocumentProvider extends ChangeNotifier {
       type: DocumentType.doc,
     );
 
-    documents.add(doc);
-    notifyListeners();
-    return res;
+    addDocumentToList(doc);
+    return doc;
   }
 
   Future<int> getPageCount(File file) async {
     return await repo.getPageCount(file);
+  }
+
+  void addDocumentToList(PdfDocument doc) {
+    documents.add(doc);
+    notifyListeners();
+  }
+
+  void removeDocumentFromList(PdfDocument doc) {
+    documents.remove(doc);
+    notifyListeners();
   }
 }

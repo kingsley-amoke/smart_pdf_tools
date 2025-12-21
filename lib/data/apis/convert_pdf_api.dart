@@ -156,10 +156,12 @@ class ConvertPdfApi extends ConvertPdf {
             },
           )
           .then((response) async {
+            print(response);
             if (response.statusCode == 200 || response.statusCode == 201) {
               final file = File(savePath);
               await file.writeAsBytes(response.data);
             } else {
+              print(response);
               throw Exception('Server returned status: ${response.statusCode}');
             }
           });

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:provider/provider.dart';
 
 import 'package:smart_pdf_tools/presentation/view/pages/compress.dart';
 import 'package:smart_pdf_tools/presentation/view/pages/merge.dart';
@@ -9,7 +8,6 @@ import 'package:smart_pdf_tools/presentation/view/widgets/convert_options.dart';
 import 'package:smart_pdf_tools/presentation/view/widgets/feature_card.dart';
 import 'package:smart_pdf_tools/presentation/view/widgets/my_appbar.dart';
 import 'package:smart_pdf_tools/presentation/view/widgets/recent_document.dart';
-import 'package:smart_pdf_tools/presentation/viewmodels/document_provider.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -19,7 +17,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: myAppbar(
         context,
-        title: 'PDF Utility Tools',
+        title: 'PDF Smart Tools',
         showBackIcon: false,
         centerTitle: true,
       ),
@@ -27,9 +25,6 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (context.watch<DocumentProvider>().connectionMessage != null)
-              Text(context.watch<DocumentProvider>().connectionMessage!),
-
             GridView.builder(
               padding: const EdgeInsets.all(20),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -126,7 +121,8 @@ final List<_FeatureItem> _features = [
   ),
   _FeatureItem(
     title: 'Convert',
-    subtitle: 'PDF to images & more',
+    subtitle: 'PDF to docx, png, jpg',
+
     icon: Icons.transform,
     gradient: LinearGradient(colors: [Colors.lightBlueAccent, Colors.blue]),
     onTap: (context) => showModalBottomSheet(

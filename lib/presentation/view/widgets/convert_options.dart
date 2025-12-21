@@ -11,8 +11,7 @@ class ConvertOptions extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+      child: ListView(
         children: [
           Container(
             width: 40,

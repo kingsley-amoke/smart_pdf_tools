@@ -41,18 +41,9 @@ class ApiService {
       onStatusUpdate?.call('Connection failed');
       return false;
     } catch (e) {
-      print('❌ Connection error: $e');
       onStatusUpdate?.call('Connection failed: $e');
       return false;
     }
-    // try {
-    //   final response = await _dio.get('/pdf');
-    //   print((response));
-    //   return response.statusCode == 200;
-    // } catch (e) {
-    //   print(e);
-    //   return false;
-    // }
   }
 
   // Upload single PDF file
@@ -221,6 +212,6 @@ class ApiService {
     File file, {
     required Function(double) onProgress,
   }) async {
-    return convertDocxToPdf(file, onProgress: onProgress);
+    return convertPdf.docToPdf(file: file, onProgress: onProgress);
   }
 }

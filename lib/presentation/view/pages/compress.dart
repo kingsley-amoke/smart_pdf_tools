@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:smart_pdf_tools/core/utils/open_file.dart';
+import 'package:smart_pdf_tools/core/utils/save_file.dart';
 import 'dart:io';
 import 'package:smart_pdf_tools/domain/models/compression_quality.dart';
 import 'package:smart_pdf_tools/presentation/view/widgets/error_message.dart';
@@ -86,6 +86,7 @@ class _CompressScreenState extends State<CompressScreen>
         compressImages: _compressImages,
         removeMetadata: _removeMetadata,
         onProgress: (progress) {
+          print(progress);
           setState(() {
             _progress = progress;
             if (progress < 0.5) {
@@ -115,8 +116,8 @@ class _CompressScreenState extends State<CompressScreen>
             title: 'Compression Complete!',
             description: 'Your PDF has been compressed successfully',
             removeText: 'Done',
-            openFileText: 'Open PDF',
-            onPressed: () => openFile(result['filePath']),
+            openFileText: 'Download',
+            onPressed: () => saveLocalFileToDownloads(context, result['doc']),
           ),
         );
       }

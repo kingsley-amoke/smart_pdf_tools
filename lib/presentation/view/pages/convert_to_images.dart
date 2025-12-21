@@ -5,6 +5,7 @@ import 'package:smart_pdf_tools/core/utils/extract_zip.dart';
 import 'dart:io';
 
 import 'package:smart_pdf_tools/domain/models/image_format.dart';
+import 'package:smart_pdf_tools/domain/models/pdf_document.dart';
 import 'package:smart_pdf_tools/presentation/view/widgets/custom_slider.dart';
 import 'package:smart_pdf_tools/presentation/view/widgets/error_message.dart';
 import 'package:smart_pdf_tools/presentation/view/widgets/file_card.dart';
@@ -80,7 +81,7 @@ class _ConvertToImagesScreenState extends State<ConvertToImagesScreen>
     });
 
     try {
-      final resultPath = await context
+      final PdfDocument doc = await context
           .read<DocumentProvider>()
           .convertPdfToImages(
             _selectedFile!,
@@ -114,10 +115,10 @@ class _ConvertToImagesScreenState extends State<ConvertToImagesScreen>
             title: 'Conversion Complete!',
             description: 'Your PDF has been converted to images',
             removeText: 'Done',
-            openFileText: 'Open ZIP',
-            filePath: resultPath,
+            openFileText: 'Extract',
+            filePath: doc.path,
             removeFile: _removeFile,
-            onPressed: () => extractZip(filePath: resultPath),
+            onPressed: () => extractZip(filePath: doc.path),
           ),
         );
       }

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:smart_pdf_tools/core/utils/open_file.dart';
+import 'package:smart_pdf_tools/core/utils/save_file.dart';
+import 'package:smart_pdf_tools/domain/models/pdf_document.dart';
 import 'package:smart_pdf_tools/presentation/view/widgets/error_message.dart';
 
 import 'package:smart_pdf_tools/presentation/view/widgets/file_card.dart';
@@ -75,7 +76,7 @@ class _DocxToPdfScreenState extends State<DocxToPdfScreen>
     });
 
     try {
-      final resultPath = await context
+      final PdfDocument doc = await context
           .read<DocumentProvider>()
           .convertDocxToPdf(
             _selectedFile!,
@@ -104,13 +105,13 @@ class _DocxToPdfScreenState extends State<DocxToPdfScreen>
           context: context,
           barrierDismissible: false,
           builder: (context) => SuccessDialog(
-            filePath: resultPath,
+            filePath: doc.path,
             removeFile: _removeFile,
             title: 'Conversion Complete!',
             description: 'Your document has been converted to PDF',
             removeText: 'Done',
-            openFileText: 'Open PDF',
-            onPressed: () => openFile(resultPath),
+            openFileText: 'Download',
+            onPressed: () => saveLocalFileToDownloads(context, doc),
           ),
         );
       }
@@ -121,7 +122,7 @@ class _DocxToPdfScreenState extends State<DocxToPdfScreen>
       });
 
       if (mounted) {
-        _showError('Failed to convert: $e');
+        _showError('Failed to convert');
       }
     }
   }
@@ -136,55 +137,6 @@ class _DocxToPdfScreenState extends State<DocxToPdfScreen>
       appBar: myAppbar(context, title: 'DOCX to PDF Converter'),
       body: Column(
         children: [
-          if (_isProcessing) ...[
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.green.shade400, Colors.green.shade600],
-                ),
-              ),
-              child: Column(
-                children: [
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      SizedBox(
-                        width: 80,
-                        height: 80,
-                        child: CircularProgressIndicator(
-                          value: _progress,
-                          strokeWidth: 6,
-                          backgroundColor: Colors.white.withOpacity(0.3),
-                          valueColor: const AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        '${(_progress * 100).toInt()}%',
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    _statusMessage,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
@@ -256,15 +208,13 @@ class _DocxToPdfScreenState extends State<DocxToPdfScreen>
             padding: const EdgeInsets.all(18.0),
             child: SizedBox(
               width: double.infinity,
-              child: Expanded(
-                child: PrimaryButton(
-                  icon: Icons.picture_as_pdf,
-                  text: _isProcessing ? _statusMessage : 'Convert to PDF',
-                  onPressed: _isProcessing ? null : _convertToPdf,
-                  isProcessing: _isProcessing,
-                  progress: _progress,
-                  statusMessage: _statusMessage,
-                ),
+              child: PrimaryButton(
+                icon: Icons.picture_as_pdf,
+                text: _isProcessing ? _statusMessage : 'Convert to PDF',
+                onPressed: _isProcessing ? null : _convertToPdf,
+                isProcessing: _isProcessing,
+                progress: _progress,
+                statusMessage: _statusMessage,
               ),
             ),
           ),

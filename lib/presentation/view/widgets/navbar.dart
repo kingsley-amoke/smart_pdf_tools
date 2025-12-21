@@ -19,7 +19,12 @@ class _NavbarState extends State<Navbar> {
   @override
   void initState() {
     super.initState();
-    context.read<DocumentProvider>().loadDocuments();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<DocumentProvider>();
+      provider.loadDocuments();
+      provider.checkConnection();
+    });
   }
 
   @override

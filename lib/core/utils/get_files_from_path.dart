@@ -25,7 +25,7 @@ Future<List<PdfDocument>> getFilesFromPath(String directoryPath) async {
       }
     }
   } catch (e) {
-    print("Error retrieving files: $e");
+    return [];
   }
 
   return files;

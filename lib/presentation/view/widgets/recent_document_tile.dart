@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:smart_pdf_tools/core/utils/date_format.dart';
 import 'package:smart_pdf_tools/core/utils/format_file_size.dart';
 import 'package:smart_pdf_tools/domain/models/pdf_document.dart';
+import 'package:smart_pdf_tools/presentation/view/widgets/my_popup_menu.dart';
 
 class RecentDocumentTile extends StatelessWidget {
   const RecentDocumentTile({
@@ -31,7 +32,7 @@ class RecentDocumentTile extends StatelessWidget {
       subtitle: Text(
         '${formatFileSize(document.sizeBytes)} • ${relativeDate(document.createdAt)}',
       ),
-      trailing: IconButton(icon: Icon(Icons.more_vert), onPressed: () {}),
+      trailing: MyPopupMenuButton(document: document),
       onTap: onTap,
     );
   }

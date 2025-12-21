@@ -1,3 +1,4 @@
+import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_pdf_tools/core/configs/themes.dart';
@@ -12,6 +13,8 @@ class PdfSmartTools extends StatelessWidget {
     return Consumer<DocumentProvider>(
       builder: (context, state, _) {
         return MaterialApp(
+          locale: DevicePreview.locale(context),
+          builder: DevicePreview.appBuilder,
           debugShowCheckedModeBanner: false,
           title: 'Smart PDF Toolkit',
           themeMode: state.themeMode,

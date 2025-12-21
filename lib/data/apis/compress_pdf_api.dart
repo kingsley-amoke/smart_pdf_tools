@@ -1,9 +1,13 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:smart_pdf_tools/core/utils/create_app_folder.dart';
 import 'package:smart_pdf_tools/domain/models/compression_quality.dart';
 import 'package:smart_pdf_tools/domain/usecases/compress_pdf.dart';
+
+Timer? progressTimer;
+bool uploadComplete = false;
 
 class CompressPdfApi extends CompressPdf {
   final Dio dio;
@@ -43,6 +47,19 @@ class CompressPdfApi extends CompressPdf {
       int? compressedSize;
       String? reductionPercentage;
 
+      // Start fake progress after upload completes
+      void startFakeProgress() {
+        double currentProgress = 0.2;
+        progressTimer = Timer.periodic(Duration(milliseconds: 300), (timer) {
+          if (currentProgress < 0.95) {
+            currentProgress += 0.05;
+            onProgress(currentProgress);
+          } else {
+            timer.cancel();
+          }
+        });
+      }
+
       // Upload and download
       await dio
           .post(
@@ -56,13 +73,15 @@ class CompressPdfApi extends CompressPdf {
             onSendProgress: (sent, total) {
               final progress = sent / total * 0.5;
               onProgress(progress);
-              print('⬆️  Upload: ${(progress * 100).toInt()}%');
+              if (sent == total && !uploadComplete) {
+                uploadComplete = true;
+                startFakeProgress();
+              }
             },
             onReceiveProgress: (received, total) {
               if (total != -1) {
                 final progress = 0.5 + (received / total * 0.5);
                 onProgress(progress);
-                print('⬇️  Download: ${(progress * 100).toInt()}%');
               }
             },
           )
@@ -79,11 +98,13 @@ class CompressPdfApi extends CompressPdf {
               // Save file
               final resultFile = File(savePath);
               await resultFile.writeAsBytes(response.data);
-              print('✅ File saved successfully');
             } else {
               throw Exception('Server returned status: ${response.statusCode}');
             }
           });
+
+      progressTimer?.cancel();
+      onProgress(1.0);
 
       return {
         'filePath': savePath,
@@ -91,8 +112,10 @@ class CompressPdfApi extends CompressPdf {
         'reductionPercentage': reductionPercentage,
       };
     } on DioException catch (e) {
+      progressTimer?.cancel();
       throw Exception('Failed to compress PDF: ${e.message}');
     } catch (e) {
+      progressTimer?.cancel();
       throw Exception('Failed to compress PDF: $e');
     }
   }

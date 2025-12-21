@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:smart_pdf_tools/core/utils/open_file.dart';
+import 'package:smart_pdf_tools/core/utils/save_file.dart';
+import 'package:smart_pdf_tools/domain/models/pdf_document.dart';
 import 'package:smart_pdf_tools/presentation/view/widgets/clear_items.dart';
 import 'package:smart_pdf_tools/presentation/view/widgets/empty_selection.dart';
 import 'package:smart_pdf_tools/presentation/view/widgets/error_message.dart';
@@ -78,7 +79,7 @@ class _ImagesToPdfScreenState extends State<ImagesToPdfScreen> {
     });
 
     try {
-      final resultPath = await context
+      final PdfDocument doc = await context
           .read<DocumentProvider>()
           .convertImagesToPdf(
             _selectedImages,
@@ -107,7 +108,7 @@ class _ImagesToPdfScreenState extends State<ImagesToPdfScreen> {
           context: context,
           barrierDismissible: false,
           builder: (context) => SuccessDialog(
-            filePath: resultPath,
+            filePath: doc.path,
             removeFile: () {
               Navigator.pop(context);
               _clearAll();
@@ -115,8 +116,8 @@ class _ImagesToPdfScreenState extends State<ImagesToPdfScreen> {
             title: 'Conversion Complete!',
             description: 'Your images have been converted to PDF',
             removeText: 'Done',
-            openFileText: 'Open PDF',
-            onPressed: () => openFile(resultPath),
+            openFileText: 'Download',
+            onPressed: () => saveLocalFileToDownloads(context, doc),
           ),
         );
       }

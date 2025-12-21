@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_pdf_tools/core/utils/extract_zip.dart';
+import 'package:smart_pdf_tools/domain/models/pdf_document.dart';
 import 'package:smart_pdf_tools/domain/models/split_method.dart';
 import 'package:smart_pdf_tools/presentation/view/widgets/error_message.dart';
 import 'package:smart_pdf_tools/presentation/view/widgets/file_card.dart';
@@ -97,7 +98,6 @@ class _SplitScreenState extends State<SplitScreen>
       setState(() {
         _isLoadingPageCount = false;
       });
-      print('Failed to get page count: $e');
     }
   }
 
@@ -148,7 +148,7 @@ class _SplitScreenState extends State<SplitScreen>
         pagesPerSplit = int.parse(_pagesPerSplitController.text);
       }
 
-      final resultPath = await provider.splitPdf(
+      final PdfDocument doc = await provider.splitPdf(
         _selectedFile!,
         method: _selectedMethod,
         ranges: ranges,
@@ -182,13 +182,13 @@ class _SplitScreenState extends State<SplitScreen>
           context: context,
           barrierDismissible: false,
           builder: (context) => SuccessDialog(
-            filePath: resultPath,
+            filePath: doc.path,
             removeFile: _removeFile,
             title: 'Split Complete!',
             description: 'Your PDF has been split successfully',
             removeText: 'Done',
-            openFileText: 'Open ZIP',
-            onPressed: () => extractZip(filePath: resultPath),
+            openFileText: 'Extract',
+            onPressed: () => extractZip(filePath: doc.path),
           ).animate().scale(duration: 300.ms, curve: Curves.easeOut),
         );
       }
