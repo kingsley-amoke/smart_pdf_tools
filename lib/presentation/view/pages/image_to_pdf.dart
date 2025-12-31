@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
@@ -103,7 +104,10 @@ class _ImagesToPdfScreenState extends State<ImagesToPdfScreen> {
       });
 
       if (mounted) {
+
         await Future.delayed(const Duration(milliseconds: 300));
+        final player = AudioPlayer();
+        await player.play(AssetSource('sounds/success.mp3'));
         showDialog(
           context: context,
           barrierDismissible: false,
@@ -140,7 +144,7 @@ class _ImagesToPdfScreenState extends State<ImagesToPdfScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: myAppbar(context, title: 'Image to PDF Converter'),
+      appBar: myAppbar(context, title: 'Image to PDF Converter', centerTitle: true),
       body: Column(
         children: [
           // Image list

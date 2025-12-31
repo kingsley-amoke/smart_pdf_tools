@@ -24,9 +24,10 @@ class DocumentProvider extends ChangeNotifier {
 
   DocumentProvider({required this.repo});
 
-  void toggleTheme(bool isDark) {
+  bool toggleTheme(bool isDark) {
     themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
     notifyListeners();
+    return isDark;
   }
 
   void onStatusUpdate(String message) {

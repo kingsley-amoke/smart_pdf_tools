@@ -211,7 +211,7 @@ class _SplitScreenState extends State<SplitScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: myAppbar(context, title: 'PDF Splitter'),
+      appBar: myAppbar(context, title: 'PDF Splitter', centerTitle: true),
       body: Column(
         children: [
           // Content

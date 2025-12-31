@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
@@ -85,9 +86,9 @@ class _MergeScreenState extends State<MergeScreen> {
           setState(() {
             _progress = progress;
             if (progress < 0.5) {
-              _statusMessage = 'Uploading... ${(progress * 100).toInt()}%';
+              _statusMessage = 'Uploading...';
             } else {
-              _statusMessage = 'Downloading... ${(progress * 100).toInt()}%';
+              _statusMessage = 'Downloading...';
             }
           });
         },
@@ -99,6 +100,9 @@ class _MergeScreenState extends State<MergeScreen> {
       });
 
       if (mounted) {
+        await Future.delayed(const Duration(milliseconds: 300));
+        final player = AudioPlayer();
+        await player.play(AssetSource('sounds/success.mp3'));
         showDialog(
           context: context,
           barrierDismissible: false,
@@ -137,7 +141,7 @@ class _MergeScreenState extends State<MergeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: myAppbar(context, title: 'PDF Merger'),
+      appBar: myAppbar(context, title: 'PDF Merger', centerTitle: true),
       body: Column(
         children: [
           // File list

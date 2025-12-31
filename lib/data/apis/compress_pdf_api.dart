@@ -60,6 +60,7 @@ class CompressPdfApi extends CompressPdf {
         });
       }
 
+
       // Upload and download
       await dio
           .post(

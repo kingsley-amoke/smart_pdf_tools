@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
@@ -101,6 +102,9 @@ class _DocxToPdfScreenState extends State<DocxToPdfScreen>
 
       if (mounted) {
         await Future.delayed(const Duration(milliseconds: 300));
+
+        final player = AudioPlayer();
+        await player.play(AssetSource('sounds/success.mp3'));
         showDialog(
           context: context,
           barrierDismissible: false,
@@ -134,7 +138,7 @@ class _DocxToPdfScreenState extends State<DocxToPdfScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: myAppbar(context, title: 'DOCX to PDF Converter'),
+      appBar: myAppbar(context, title: 'DOCX to PDF Converter', centerTitle: true),
       body: Column(
         children: [
           Expanded(

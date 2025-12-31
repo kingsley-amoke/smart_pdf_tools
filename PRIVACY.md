@@ -4,7 +4,7 @@ Last updated: [Current Date]
 
 ## Overview
 
-PDF Smart Tools ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we handle your information.
+PDF Converter Merge & Compress ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we handle your information.
 
 ## Data Collection
 

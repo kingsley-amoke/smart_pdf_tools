@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
@@ -86,7 +87,7 @@ class _CompressScreenState extends State<CompressScreen>
         compressImages: _compressImages,
         removeMetadata: _removeMetadata,
         onProgress: (progress) {
-          print(progress);
+
           setState(() {
             _progress = progress;
             if (progress < 0.5) {
@@ -107,6 +108,8 @@ class _CompressScreenState extends State<CompressScreen>
 
       if (mounted) {
         await Future.delayed(const Duration(milliseconds: 300));
+        final player = AudioPlayer();
+        await player.play(AssetSource('sounds/success.mp3'));
         showDialog(
           context: context,
           barrierDismissible: false,
@@ -128,7 +131,7 @@ class _CompressScreenState extends State<CompressScreen>
       });
 
       if (mounted) {
-        _showError('Failed to compress PDF: $e');
+        _showError('Failed to compress PDF');
       }
     }
   }
@@ -140,7 +143,7 @@ class _CompressScreenState extends State<CompressScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: myAppbar(context, title: 'PDF Compressor'),
+      appBar: myAppbar(context, title: 'PDF Compressor',centerTitle: true),
 
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

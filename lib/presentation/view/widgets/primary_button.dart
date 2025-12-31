@@ -52,12 +52,14 @@ class PrimaryButton extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Text(
-                    '$statusMessage • ${(progress * 100).toStringAsFixed(0)}%',
-                    softWrap: true,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSecondary,
+                  Expanded(
+                    child: Text(
+                      '$statusMessage • ${(progress * 100).toStringAsFixed(0)}%',
+                      softWrap: true,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSecondary,
+                      ),
                     ),
                   ),
                 ],

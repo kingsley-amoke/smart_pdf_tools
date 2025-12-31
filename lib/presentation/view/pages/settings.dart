@@ -131,10 +131,19 @@
 
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:provider/provider.dart';
+import 'package:smart_pdf_tools/presentation/viewmodels/document_provider.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+bool isDark = false;
+
+class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -145,8 +154,14 @@ class SettingsScreen extends StatelessWidget {
           _settingsTile(
             icon: LucideIcons.moon,
             title: 'Dark Mode',
-            subtitle: 'Dark mode coming soon',
-            trailing: Switch(value: false, onChanged: (_) {}),
+            subtitle: 'Toggle to turn on Dark Mode',
+            trailing: Switch(value: isDark, onChanged: (value) {
+context.read<DocumentProvider>().toggleTheme(value);
+setState(() {
+
+  isDark = value;
+});
+            }),
           ),
 
           _settingsTile(

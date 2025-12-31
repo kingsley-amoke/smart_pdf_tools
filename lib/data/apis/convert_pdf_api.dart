@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -5,6 +6,8 @@ import 'package:smart_pdf_tools/core/utils/create_app_folder.dart';
 import 'package:smart_pdf_tools/domain/models/image_format.dart';
 import 'package:smart_pdf_tools/domain/usecases/convert_pdf.dart';
 
+Timer? progressTimer;
+bool uploadComplete = false;
 class ConvertPdfApi extends ConvertPdf {
   final Dio dio;
 
@@ -27,6 +30,19 @@ class ConvertPdfApi extends ConvertPdf {
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final savePath = '$directory/converted_$timestamp.docx';
 
+      // Start fake progress after upload completes
+      void startFakeProgress() {
+        double currentProgress = 0.2;
+        progressTimer = Timer.periodic(Duration(milliseconds: 300), (timer) {
+          if (currentProgress < 0.95) {
+            currentProgress += 0.05;
+            onProgress(currentProgress);
+          } else {
+            timer.cancel();
+          }
+        });
+      }
+
       await dio
           .post(
             '/pdf/convert/to-docx',
@@ -39,6 +55,10 @@ class ConvertPdfApi extends ConvertPdf {
             onSendProgress: (sent, total) {
               final progress = sent / total * 0.5;
               onProgress(progress);
+              if (sent == total && !uploadComplete) {
+                uploadComplete = true;
+                startFakeProgress();
+              }
             },
             onReceiveProgress: (received, total) {
               if (total != -1) {
@@ -55,9 +75,12 @@ class ConvertPdfApi extends ConvertPdf {
               throw Exception('Server returned status: ${response.statusCode}');
             }
           });
-
+      progressTimer?.cancel();
+      onProgress(1.0);
       return savePath;
     } catch (e) {
+      progressTimer?.cancel();
+
       throw Exception('Failed to convert PDF to DOCX: $e');
     }
   }
@@ -84,6 +107,19 @@ class ConvertPdfApi extends ConvertPdf {
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final savePath = '$directory/from_images_$timestamp.pdf';
 
+      // Start fake progress after upload completes
+      void startFakeProgress() {
+        double currentProgress = 0.2;
+        progressTimer = Timer.periodic(Duration(milliseconds: 300), (timer) {
+          if (currentProgress < 0.95) {
+            currentProgress += 0.05;
+            onProgress(currentProgress);
+          } else {
+            timer.cancel();
+          }
+        });
+      }
+
       await dio
           .post(
             '/pdf/convert/images-to-pdf',
@@ -96,6 +132,10 @@ class ConvertPdfApi extends ConvertPdf {
             onSendProgress: (sent, total) {
               final progress = sent / total * 0.5;
               onProgress(progress);
+              if (sent == total && !uploadComplete) {
+                uploadComplete = true;
+                startFakeProgress();
+              }
             },
             onReceiveProgress: (received, total) {
               if (total != -1) {
@@ -112,9 +152,12 @@ class ConvertPdfApi extends ConvertPdf {
               throw Exception('Server returned status: ${response.statusCode}');
             }
           });
-
+      progressTimer?.cancel();
+      onProgress(1.0);
       return savePath;
     } catch (e) {
+      progressTimer?.cancel();
+
       throw Exception('Failed to convert images to PDF: $e');
     }
   }
@@ -135,6 +178,19 @@ class ConvertPdfApi extends ConvertPdf {
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final savePath = '$directory/converted_$timestamp.pdf';
 
+      // Start fake progress after upload completes
+      void startFakeProgress() {
+        double currentProgress = 0.2;
+        progressTimer = Timer.periodic(Duration(milliseconds: 300), (timer) {
+          if (currentProgress < 0.95) {
+            currentProgress += 0.05;
+            onProgress(currentProgress);
+          } else {
+            timer.cancel();
+          }
+        });
+      }
+
       await dio
           .post(
             '/pdf/convert/docx-to-pdf',
@@ -147,6 +203,10 @@ class ConvertPdfApi extends ConvertPdf {
             onSendProgress: (sent, total) {
               final progress = sent / total * 0.5;
               onProgress(progress);
+              if (sent == total && !uploadComplete) {
+                uploadComplete = true;
+                startFakeProgress();
+              }
             },
             onReceiveProgress: (received, total) {
               if (total != -1) {
@@ -166,8 +226,13 @@ class ConvertPdfApi extends ConvertPdf {
             }
           });
 
+      progressTimer?.cancel();
+      onProgress(1.0);
+
       return savePath;
     } catch (e) {
+      progressTimer?.cancel();
+
       throw Exception('Failed to convert DOCX to PDF: $e');
     }
   }
@@ -193,6 +258,19 @@ class ConvertPdfApi extends ConvertPdf {
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final savePath = '$directory/pdf_images_$timestamp.zip';
 
+      // Start fake progress after upload completes
+      void startFakeProgress() {
+        double currentProgress = 0.2;
+        progressTimer = Timer.periodic(Duration(milliseconds: 300), (timer) {
+          if (currentProgress < 0.95) {
+            currentProgress += 0.05;
+            onProgress(currentProgress);
+          } else {
+            timer.cancel();
+          }
+        });
+      }
+
       await dio
           .post(
             '/pdf/convert/to-images',
@@ -205,6 +283,10 @@ class ConvertPdfApi extends ConvertPdf {
             onSendProgress: (sent, total) {
               final progress = sent / total * 0.5;
               onProgress(progress);
+              if (sent == total && !uploadComplete) {
+                uploadComplete = true;
+                startFakeProgress();
+              }
             },
             onReceiveProgress: (received, total) {
               if (total != -1) {
@@ -221,9 +303,13 @@ class ConvertPdfApi extends ConvertPdf {
               throw Exception('Server returned status: ${response.statusCode}');
             }
           });
+      progressTimer?.cancel();
+      onProgress(1.0);
 
       return savePath;
     } catch (e) {
+      progressTimer?.cancel();
+
       throw Exception('Failed to convert PDF to images: $e');
     }
   }

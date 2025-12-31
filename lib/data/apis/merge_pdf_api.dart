@@ -1,8 +1,12 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:smart_pdf_tools/core/utils/create_app_folder.dart';
 import 'package:smart_pdf_tools/domain/usecases/merge.dart';
+
+Timer? progressTimer;
+bool uploadComplete = false;
 
 class MergePdfApi extends MergePdf {
   final Dio dio;
@@ -26,12 +30,26 @@ class MergePdfApi extends MergePdf {
         );
       }
 
+
       FormData formData = FormData.fromMap({'files': filesList});
 
       // Get save directory
       final directory = await createAppFolder();
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final savePath = '$directory/merged_$timestamp.pdf';
+
+      // Start fake progress after upload completes
+      void startFakeProgress() {
+        double currentProgress = 0.2;
+        progressTimer = Timer.periodic(Duration(milliseconds: 300), (timer) {
+          if (currentProgress < 0.95) {
+            currentProgress += 0.05;
+            onProgress(currentProgress);
+          } else {
+            timer.cancel();
+          }
+        });
+      }
 
       // Upload and download
       await dio
@@ -47,6 +65,10 @@ class MergePdfApi extends MergePdf {
               // Upload progress (0 to 0.5)
               final progress = sent / total * 0.5;
               onProgress(progress);
+              if (sent == total && !uploadComplete) {
+                uploadComplete = true;
+                startFakeProgress();
+              }
             },
             onReceiveProgress: (received, total) {
               if (total != -1) {
@@ -65,12 +87,15 @@ class MergePdfApi extends MergePdf {
               throw Exception('Server returned status: ${response.statusCode}');
             }
           });
-
+      progressTimer?.cancel();
+      onProgress(1.0);
       return savePath;
     } on DioException catch (e) {
       if (e.response != null) {}
+      progressTimer?.cancel();
       throw Exception('Failed to merge PDFs: ${e.message}');
     } catch (e) {
+      progressTimer?.cancel();
       throw Exception('Failed to merge PDFs: $e');
     }
   }
